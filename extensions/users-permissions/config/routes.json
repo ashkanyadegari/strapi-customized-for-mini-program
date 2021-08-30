@@ -1,0 +1,20 @@
+{
+  "routes": [
+    {
+      "method": "POST",
+      "path": "/wx-login",
+      "handler": "user-sessions.wxLogin",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/update",
+      "handler": "user-sessions.update",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}
