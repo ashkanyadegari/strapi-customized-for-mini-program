@@ -62,10 +62,10 @@
     "open_id": {
       "type": "string"
     },
-    "avatar": {
+    "avatarUrl": {
       "type": "string"
     },
-    "nickname": {
+    "nickName": {
       "type": "string"
     },
     "phone_number": {

@@ -14,7 +14,7 @@ const getJWT = (user) => {
   return jwt
 }
 
-const createUser = async (ctx) => {
+const createUser = async (ctx, session_key) => {
   const { request } = ctx
   const { openid } = request.body
   const userObj = {
@@ -22,34 +22,28 @@ const createUser = async (ctx) => {
     username: openid,
     open_id: openid
   }
-  const newUser = await strapi.query('user', 'users-permissions').create(userObj)
-  const sanitizedUser = sanitizeEntity(newUser, {
+  const user = await strapi.query('user', 'users-permissions').create(userObj)
+  const sanitizedUser = sanitizeEntity(user, {
     model: strapi.query('user', 'users-permissions').model,
   });
-  const jwt = getJWT(newUser)
-  return ctx.send({
-    jwt,
-    user: sanitizedUser,
-  });
+  const jwt = getJWT(user)
+  return ctx.send({ jwt, user: sanitizedUser, session_key });
 }
 
-const returnUserWithJWT = async (ctx, user) => {
+const returnUserWithJWT = async (ctx, user, session_key) => {
     const jwt = getJWT(user)
-    return ctx.send({
-      jwt,
-      user: user,
-    });
+    return ctx.send({ jwt, user, session_key });
 }
 
-const getUserById = async(ctx, id) => {
+const getUserById = async(ctx, id, session_key) => {
   const user = await strapi.query('user','users-permissions').findOne({
     id: id
   });
-  const jwt = getJWT(user)
-  return ctx.send({
-    jwt: jwt,
-    user: user,
+  const sanitizedUser = sanitizeEntity(user, {
+    model: strapi.query('user', 'users-permissions').model,
   });
+  const jwt = getJWT(user)
+  return ctx.send({ jwt, user: sanitizedUser, session_key });
 }
 
 const wxLogin = async(ctx, next) => {
@@ -65,24 +59,27 @@ const wxLogin = async(ctx, next) => {
 
   if (!id) {
     if (!user) {
-      return createUser(ctx)
+      return createUser(ctx, session_key)
     } else {
-      return returnUserWithJWT(ctx, user)
+      return returnUserWithJWT(ctx, user, session_key)
     }
   } else {
-    return getUserById(ctx, id)
+    return getUserById(ctx, id, session_key)
   }
 }
 
 const update = async(ctx, next) => {
   const { request, response } = ctx
-  console.log(request.body)
-  console.log(request.header.authorization)
+  const { userInfo } = request.body
 
-  const { session_key, openid } = await wx.wxLoginApi(jsCode)
   const { id } = await strapi.plugins['users-permissions'].services.jwt.getToken(ctx)
+  const user = await strapi.query('user', 'users-permissions').update({ id: id }, userInfo)
+  
+  const sanitizedUser = sanitizeEntity(user, {
+    model: strapi.query('user', 'users-permissions').model,
+  });
+  return ctx.send({user: sanitizedUser})
 
-  console.log(wx.decryptData)
 }
   
 module.exports = {
