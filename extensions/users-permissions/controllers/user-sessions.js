@@ -52,10 +52,11 @@ const wxLogin = async(ctx, next) => {
   console.log(request.header.authorization)
 
   const { session_key, openid } = await wx.wxLoginApi(jsCode)
-  const { id } = await strapi.plugins['users-permissions'].services.jwt.getToken(ctx)
+  // const { id } = await strapi.plugins['users-permissions'].services.jwt.getToken(ctx)
   const user = await strapi.query('user','users-permissions').findOne({
     open_id: openid
   });
+  const id = ''
 
   if (!id) {
     if (!user) {

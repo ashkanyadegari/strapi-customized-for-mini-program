@@ -1,0 +1,21 @@
+{
+  "kind": "collectionType",
+  "collectionName": "stores",
+  "info": {
+    "name": "store"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Name": {
+      "type": "string"
+    },
+    "Description": {
+      "type": "richtext"
+    }
+  }
+}
